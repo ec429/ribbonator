@@ -82,8 +82,6 @@ class CelestialBody(object):
         y = self.y * 32
         return layout.crop((x, y, x+120, y+32))
     def generate(self):
-        if not (self.craft or self.devices):
-            return None
         self.devices = sorted(self.devices, key=lambda d:collation.find(d)) # ensure correct covering
         base = self.base_ribbon()
         for d in self.devices:
@@ -139,7 +137,7 @@ if __name__ == '__main__':
     grid = [[None, None, None] for x in xrange(9)]
 
     for line in sys.stdin.readlines():
-        body, merits = line.strip().split(None, 1)
+        body, _, merits = line.strip().partition(' ')
         for b in bodies:
             if b.name == body:
                 break
