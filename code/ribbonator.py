@@ -153,6 +153,8 @@ if __name__ == '__main__':
         height = max(height, len(grid[x]))
     grid = [g for g in grid if g]
     width = len(grid)
+    if not width:
+        sys.exit(0)
     output = Image.new('RGBA', (width * 120, height * 32), 0)
     for x, column in enumerate(grid):
         for y, row in enumerate(column):
