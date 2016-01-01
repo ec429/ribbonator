@@ -89,7 +89,7 @@ def page_body(kwargs):
             t.p["Select your achievements with the checkboxes and radiobuttons, and click Submit to generate the ribbon image URL.  This will also generate a Ribbonator 'job card' URL; bookmark this if you want to be able to update your ribbons later."],
             t.p["The Ribbonator does not store any user data.  Instead, the ribbon contents are encoded in the URL of the image, using the same 'job card' format."],
             t.img(src='gen.png'+job, alt="Generated ribbons"),
-            t.p[t.a(href=job)["Job Card URL - bookmark this"]],
+            t.p[t.a(href=job)["Job Card URL - bookmark this"] if len(job) > 1 else ''],
             t.form(method='GET')[t.ul[checks],
                                  t.input(type='submit', value='Submit')
                                  ],
