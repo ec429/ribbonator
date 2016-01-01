@@ -29,6 +29,7 @@ devices = {'a':'Aircraft',
            'R':'Rover',
            's':'Station',
            'v':'Probe Rover',
+           'W':'Challenge Wreath',
            'X':'Kerbol Escape',
            '?':'Anomaly',
            '*':'Armada',
@@ -61,18 +62,34 @@ class CelestialBody(object):
         self.craft = None
         self.devices = []
         self.star = False # is the 'Escape' device valid?
+    def copy(self):
+        return self.__class__(self.name, self.x, self.y, self.surface, self.atmos, self.synch, self.wreath)
+    def permit(self, c): # indicates what things add_device will accept.  For UIs
+        if c not in devices:
+            return False
+        if c in surface_devices and not self.surface:
+            return False
+        if c in atmos_devices and not self.atmos:
+            return False
+        if c == 'W' and not self.wreath:
+            return False
+        if c == 'X' and not self.star:
+            return False
+        return True
     def add_device(self, c):
         if c not in devices:
             raise IndexError('Non-existent device', c, 'listed for', self.name)
         device = devices[c]
         if c in craft_devices:
             if self.craft is not None:
-                raise ValueError('Multiple craft devices', self.craft, device, 'on', self.name)
+                raise ValueError('Multiple craft devices', devices.get(self.craft) + ",", device, 'on', self.name)
             self.craft = c
         if c in surface_devices and not self.surface:
             raise ValueError('Surface device', device, 'on body without surface', self.name)
         elif c in atmos_devices and not self.atmos:
             raise ValueError('Device', device, 'on airless body', self.name)
+        elif c == 'W' and not self.wreath:
+            raise ValueError('There is no Challenge Wreath for', self.name)
         elif c == 'X' and not self.star:
             raise ValueError('Device', device, 'on', self.name, 'only allowed on Stars')
         else:
@@ -99,6 +116,8 @@ class Moon(CelestialBody):
         # All moons have surfaces (there are no gas moons), and none support synchronous orbit
         super(Moon, self).__init__(name, x, y, True, atmos, False, wreath)
         self.parent = parent # we don't actually use this anywhere
+    def copy(self):
+        return self.__class__(self.parent, self.name, self.x, self.y, self.atmos, self.wreath)
 class Asteroid(CelestialBody): pass
 
 sun = Star('Sol', 0, 0, False, True, True, None)
@@ -133,16 +152,17 @@ charon = Moon(pluto, 'Charon', 8, 1, False, None)
 
 bodies = [sun, mercury, venus, earth, luna, asteroid, mars, phobos, deimos, jupiter, io, europa, ganymede, callisto, saturn, mimas, titan, iapetus, enceladus, tethys, dione, rhea, uranus, neptune, triton, pluto, charon]
 
-if __name__ == '__main__':
+def generate(l):
     grid = [[None, None, None] for x in xrange(9)]
 
-    for line in sys.stdin.readlines():
+    for line in l:
         body, _, merits = line.strip().partition(' ')
         for b in bodies:
             if b.name == body:
                 break
         else:
             raise IndexError('No such body', body)
+        b = b.copy()
         for d in merits:
             b.add_device(d)
         grid[b.x][b.y] = b.generate()
@@ -159,4 +179,8 @@ if __name__ == '__main__':
     for x, column in enumerate(grid):
         for y, row in enumerate(column):
             output.paste(row, (x * 120, y * 32))
+    return output
+
+if __name__ == '__main__':
+    output = generate(sys.stdin.readlines())
     output.save('out.png')
