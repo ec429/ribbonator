@@ -86,6 +86,7 @@ def page_body(kwargs):
     job = '?' + '&'.join('='.join(gen_job(b, merits[b])) for b in merits if 'soi' in merits[b])
     return [t.h1['RSS Ribbonator - Clumsy Web Interface'],
             t.p["Generator and RSS Ribbons by Edward Cree.  Based on the KSP Ribbons by Unistrut.  'Inspired' by ", t.a(href='http://www.kerbaltek.com/ribbons')["Ezriilc's Ribbon Generator"], "."],
+            t.p[t.a(href="https://github.com/ec429/ribbonator")["Source Code"]],
             t.p["Select your achievements with the checkboxes and radiobuttons, and click Submit to generate the ribbon image URL.  This will also generate a Ribbonator 'job card' URL; bookmark this if you want to be able to update your ribbons later."],
             t.p["The Ribbonator does not store any user data.  Instead, the ribbon contents are encoded in the URL of the image, using the same 'job card' format."],
             t.img(src='gen.png'+job, alt="Generated ribbons"),
