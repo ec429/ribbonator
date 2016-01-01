@@ -50,8 +50,10 @@ def load_device(d):
 
 device_images = {k: load_device(d) for k,d in devices.items()}
 layout = Image.open('RSS/Layout.png')
+asteroid_layout = Image.open('RSS/Asteroids.png')
 
 class CelestialBody(object):
+    star = False # is the 'Escape' device valid?
     def __init__(self, name, x, y, surface, atmos, synch, wreath):
         self.name = name
         self.x, self.y = x, y # Where is it in layout.png, in ribbon-widths and ribbon-heights
@@ -61,7 +63,6 @@ class CelestialBody(object):
         self.wreath = wreath # string indicating what the Challenge on this body is, or None
         self.craft = None
         self.devices = []
-        self.star = False # is the 'Escape' device valid?
     def copy(self):
         return self.__class__(self.name, self.x, self.y, self.surface, self.atmos, self.synch, self.wreath)
     def permit(self, c): # indicates what things add_device will accept.  For UIs
@@ -107,9 +108,7 @@ class CelestialBody(object):
         return base
 
 class Star(CelestialBody):
-    def __init__(self, *args):
-        super(Star, self).__init__(*args)
-        self.star = True
+    star = True
 class Planet(CelestialBody): pass
 class Moon(CelestialBody):
     def __init__(self, parent, name, x, y, atmos, wreath):
@@ -118,7 +117,14 @@ class Moon(CelestialBody):
         self.parent = parent # we don't actually use this anywhere
     def copy(self):
         return self.__class__(self.parent, self.name, self.x, self.y, self.atmos, self.wreath)
-class Asteroid(CelestialBody): pass
+class Asteroid(CelestialBody):
+    mb = None
+    def set_main_body(self, x, y):
+        self.mb = (x, y)
+    def base_ribbon(self):
+        x = self.mb[0] * 120
+        y = self.mb[1] * 32
+        return asteroid_layout.crop((x, y, x+120, y+32))
 
 sun = Star('Sol', 0, 0, False, True, True, None)
 mercury = Planet('Mercury', 0, 1, True, False, False, None)
@@ -157,12 +163,20 @@ def generate(l):
 
     for line in l:
         body, _, merits = line.strip().partition(' ')
+        body,_,mainbody = body.partition('-') # for Asteroid-MainBody
         for b in bodies:
             if b.name == body:
                 break
         else:
             raise IndexError('No such body', body)
         b = b.copy()
+        if isinstance(b, Asteroid):
+            for mb in bodies:
+                if mb.name == mainbody:
+                    break
+            else:
+                raise IndexError('No such mainBody', mainbody)
+            b.set_main_body(mb.x, mb.y)
         for d in merits:
             b.add_device(d)
         grid[b.x][b.y] = b.generate()

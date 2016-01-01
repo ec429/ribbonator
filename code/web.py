@@ -14,16 +14,15 @@ def gen_checks(b, merits):
     soi_string = 'Reached SOI'
     if isinstance(b, ribbonator.Asteroid):
         soi_string = 'Visited (within 2.2km)'
-        if 0: # MainBody not yet supported by the generator backend
-            group = []
-            for mb in ribbonator.bodies:
-                if isinstance(mb, (ribbonator.Star, ribbonator.Planet)):
-                    v = 'checked' if 'mb_' + mb.name in merits else None
-                    group.extend((t.input(type='radio', name='%s_mainbody'%(b.name,), value=mb.name, checked=v), mb.name))
-            groups.append(t.fieldset[t.legend['MainBody'],
-                                     group,
-                                     t.input(type='radio', name='%s_mainbody'%(b.name), value=''), 'Clear',
-                                     ])
+        group = []
+        have_mb = any(m.startswith('mb_') for m in merits)
+        for mb in ribbonator.bodies:
+            if isinstance(mb, (ribbonator.Star, ribbonator.Planet)):
+                v = 'checked' if 'mb_' + mb.name in merits or (mb == ribbonator.earth and not have_mb) else None
+                group.extend((t.input(type='radio', name='%s_mainbody'%(b.name,), value=mb.name, checked=v), mb.name))
+        groups.append(t.fieldset[t.legend['MainBody'],
+                                 group,
+                                 ])
     lhgroup = []
     for d in 'oeprgnAX': # left-hand devices
         if b.permit(d):
@@ -55,16 +54,17 @@ def gen_checks(b, merits):
                       ]
 
 def gen_job(b, merits):
-    if any('mb_' in m for m in merits):
+    if any(m.startswith('mb_') for m in merits):
         mb = [m for m in merits if m.startswith('mb_')][0][3:]
         b = '%s-%s'%(b, mb)
-    return '%s=%s'%(b, ''.join(m for m in merits if len(m) == 1))
+    return (b, ''.join(m for m in merits if len(m) == 1))
 
 def parse_merits(kwargs):
     merits = {}
     for k,v in kwargs.items():
         v = ''.join(v)
         b,_,c = k.partition('_')
+        b,_,mb = b.partition('-')
         merits.setdefault(b, [])
         if c == 'craft':
             merits[b].append(v)
@@ -76,17 +76,18 @@ def parse_merits(kwargs):
         else: # Job Card format
             merits[b].append('soi')
             merits[b].extend(v)
+            if mb:
+                merits[b].append('mb_'+mb)
     return merits
 
 def page_body(kwargs):
     merits = parse_merits(kwargs)
     checks = [gen_checks(b, merits.get(b.name, [])) for b in ribbonator.bodies]
-    job = '?' + '&'.join(gen_job(b, merits[b]) for b in merits if 'soi' in merits[b])
+    job = '?' + '&'.join('='.join(gen_job(b, merits[b])) for b in merits if 'soi' in merits[b])
     return [t.h1['RSS Ribbonator - Clumsy Web Interface'],
             t.p["Generator and RSS Ribbons by Edward Cree.  Based on the KSP Ribbons by Unistrut.  'Inspired' by ", t.a(href='http://www.kerbaltek.com/ribbons')["Ezriilc's Ribbon Generator"], "."],
             t.p["Select your achievements with the checkboxes and radiobuttons, and click Submit to generate the ribbon image URL.  This will also generate a Ribbonator 'job card' URL; bookmark this if you want to be able to update your ribbons later."],
             t.p["The Ribbonator does not store any user data.  Instead, the ribbon contents are encoded in the URL of the image, using the same 'job card' format."],
-            t.p["Note: Asteroid ribbon doesn't yet allow setting MainBody.  This is because the generator backend doesn't support any MainBody other than Earth yet."],
             t.img(src='gen.png'+job, alt="Generated ribbons"),
             t.p[t.a(href=job)["Job Card URL - bookmark this"]],
             t.form(method='GET')[t.ul[checks],
@@ -96,7 +97,7 @@ def page_body(kwargs):
 
 def gen_image(kwargs):
     merits = parse_merits(kwargs)
-    image = ribbonator.generate('%s %s'%(k, ''.join(m for m in v if len(m) == 1)) for k,v in merits.items())
+    image = ribbonator.generate(' '.join(gen_job(k, v)) for k,v in merits.items())
     out = cStringIO.StringIO()
     image.save(out, format='png')
     return out.getvalue()
