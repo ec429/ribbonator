@@ -84,6 +84,7 @@ def page_body(kwargs):
     merits = parse_merits(kwargs)
     checks = [gen_checks(b, merits.get(b.name, [])) for b in ribbonator.bodies]
     job = '?' + '&'.join('='.join(gen_job(b, merits[b])) for b in merits if 'soi' in merits[b])
+    print 'serving index', job
     return [t.h1['RSS Ribbonator - Clumsy Web Interface'],
             t.p["Generator and RSS Ribbons by Edward Cree.  Based on the KSP Ribbons by Unistrut.  'Inspired' by ", t.a(href='http://www.kerbaltek.com/ribbons')["Ezriilc's Ribbon Generator"], "."],
             t.p[t.a(href="https://github.com/ec429/ribbonator")["Source Code"]],
@@ -98,7 +99,9 @@ def page_body(kwargs):
 
 def gen_image(kwargs):
     merits = parse_merits(kwargs)
-    image = ribbonator.generate(' '.join(gen_job(k, v)) for k,v in merits.items())
+    job = [' '.join(gen_job(k, v)) for k,v in merits.items()]
+    print 'serving gen.png', ', '.join(job)
+    image = ribbonator.generate(job)
     out = cStringIO.StringIO()
     image.save(out, format='png')
     return out.getvalue()
