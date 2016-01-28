@@ -2,7 +2,8 @@
 
 import sys
 import cStringIO
-from nevow import tags as t, url
+import urllib
+from nevow import tags as t
 from nevow.flat import flatten
 import ribbonator
 
@@ -57,12 +58,13 @@ def gen_job(b, merits):
     if any(m.startswith('mb_') for m in merits):
         mb = [m for m in merits if m.startswith('mb_')][0][3:]
         b = '%s-%s'%(b, mb)
-    return (b, ''.join(m for m in merits if len(m) == 1))
+    return (b, ''.join(urllib.quote(m) for m in merits if len(m) == 1))
 
 def parse_merits(kwargs):
     merits = {}
     for k,v in kwargs.items():
-        v = ''.join(v)
+        k = urllib.unquote(k)
+        v = urllib.unquote(''.join(v))
         b,_,c = k.partition('_')
         b,_,mb = b.partition('-')
         merits.setdefault(b, [])
@@ -102,7 +104,7 @@ def gen_image(kwargs):
     merits = parse_merits(kwargs)
     job = [' '.join(gen_job(k, v)) for k,v in merits.items()]
     print 'serving gen.png', ', '.join(job)
-    image = ribbonator.generate(job)
+    image = ribbonator.generate(map(urllib.unquote, job))
     out = cStringIO.StringIO()
     image.save(out, format='png')
     return out.getvalue()
