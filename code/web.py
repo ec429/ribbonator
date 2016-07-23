@@ -10,7 +10,38 @@ import ribbonator
 from twisted.web import server, resource
 from twisted.internet import reactor, endpoints
 
-def gen_checks(b, merits):
+PAGE_SCRIPT = """
+moon_parents = {}
+
+function changedSOI(name)
+{
+    soi = document.getElementById(name + '_soi');
+    div = document.getElementById(name + '_div');
+    if (soi == null)
+        return;
+    if (div == null)
+        return;
+    if (soi.checked)
+        div.style.display = 'block';
+    else
+        div.style.display = 'none';
+    for (var moon in moon_parents) {
+        if (moon_parents[moon] == name) {
+            mfs = document.getElementById(moon + '_fs');
+            if (mfs != null)
+                mfs.style.display = div.style.display;
+        }
+    }
+}
+
+"""
+
+for b in ribbonator.bodies:
+    if isinstance(b, ribbonator.Moon):
+        PAGE_SCRIPT += 'moon_parents[%r] = %r\n'%(b.name, b.parent.name)
+
+def gen_checks(b, allmerits):
+    merits = allmerits.get(b.name, [])
     groups = []
     soi_string = 'Reached SOI'
     if isinstance(b, ribbonator.Asteroid):
@@ -48,11 +79,16 @@ def gen_checks(b, merits):
         v = 'checked' if 'W' in merits else None
         other.extend((t.input(type='checkbox', name='%s_W'%(b.name,), checked=v), 'Challenge Wreath: ', b.wreath))
     v = 'checked' if 'soi' in merits else None
+    if isinstance(b, ribbonator.Moon):
+        p = 'soi' in allmerits.get(b.parent.name, [])
+    else:
+        p = True;
     groups.append(t.fieldset[t.legend['Other Devices'], other])
-    return t.fieldset[t.legend[b.name],
-                      t.input(type='checkbox', name='%s_soi'%(b.name,), checked=v), soi_string,
-                      groups,
-                      ]
+    content = [t.legend[b.name],
+               t.input(type='checkbox', name='%s_soi'%(b.name,), checked=v, onchange='changedSOI(%r)'%(b.name,), id='%s_soi'%(b.name,)), soi_string,
+               t.div(id='%s_div'%(b.name,), style='display:%s;'%('block' if v else 'none',))[groups],
+               ]
+    return t.fieldset(id='%s_fs'%(b.name,), style='display:%s;'%('block' if p else 'none',))[content]
 
 def gen_job(b, merits):
     if any(m.startswith('mb_') for m in merits):
@@ -84,13 +120,15 @@ def parse_merits(kwargs):
 
 def page_body(kwargs):
     merits = parse_merits(kwargs)
-    checks = [gen_checks(b, merits.get(b.name, [])) for b in ribbonator.bodies]
+    checks = [gen_checks(b, merits) for b in ribbonator.bodies]
     job = '?' + '&'.join('='.join(gen_job(b, merits[b])) for b in merits if 'soi' in merits[b])
     print 'serving index', job
-    return [t.h1['RSS Ribbonator - Clumsy Web Interface'],
+    return [t.script(type='text/javascript')[PAGE_SCRIPT],
+            t.h1['RSS Ribbonator - Clumsy Web Interface'],
             t.p["Generator and RSS Ribbons by Edward Cree.  Based on the KSP Ribbons by Unistrut.  'Inspired' by ", t.a(href='http://www.kerbaltek.com/ribbons')["Ezriilc's Ribbon Generator"], "."],
             t.p[t.a(href="https://github.com/ec429/ribbonator")["Source Code"]],
             t.p["Select your achievements with the checkboxes and radiobuttons, and click Submit to generate the ribbon image URL.  This will also generate a Ribbonator 'job card' URL; bookmark this if you want to be able to update your ribbons later."],
+            t.p["Moons will only appear when their parent planet's 'Reached SOI' is selected."],
             t.p["The Ribbonator does not store any user data.  Instead, the ribbon contents are encoded in the URL of the image, using the same 'job card' format."],
             t.p["I recommend against linking directly to the generated image.  Download it, then upload to some other hosting; that way your image won't break if the Ribbonator moves, dies, or has bandwidth troubles."],
             t.img(src='gen.png'+job, alt="Generated ribbons"),
