@@ -48,7 +48,7 @@ def load_device(d):
     f = 'Devices/%s.png'%(d,)
     return Image.open(f)
 
-device_images = {k: load_device(d) for k,d in list(devices.items())}
+device_images = {k: load_device(d) for k,d in devices.items()}
 layout = Image.open('RSS/Layout.png')
 asteroid_layout = Image.open('RSS/Asteroids.png')
 
@@ -131,42 +131,35 @@ mercury = Planet('Mercury', 0, 1, True, False, False, None)
 venus = Planet('Venus', 0, 2, True, True, False, "Reach orbit from the surface")
 earth = Planet('Earth', 1, 0, True, True, True, "Single Stage to Orbit")
 luna = Moon(earth, 'Luna', 1, 1, False, None)
+asteroid = Asteroid('Asteroid', 1, 2, True, False, False, None)
 mars = Planet('Mars', 2, 0, True, True, True, None)
 phobos = Moon(mars, 'Phobos', 2, 1, False, None)
 deimos = Moon(mars, 'Deimos', 2, 2,  False, None)
-ceres = Planet('Ceres', 3, 0, True, False, True, None)
-vesta = Planet('Vesta', 3, 1, True, False, True, None)
-asteroid = Asteroid('Asteroid', 3, 2, True, False, False, None)
-jupiter = Planet('Jupiter', 4, 0, False, True, True, None)
-io = Moon(jupiter, 'Io', 4, 1, False, None)
-europa = Moon(jupiter, 'Europa', 4, 2, False, None)
-ganymede = Moon(jupiter, 'Ganymede', 5, 1, False, None)
-callisto = Moon(jupiter, 'Callisto', 5, 2, False, None)
-saturn = Planet('Saturn', 6, 0, False, True, True, None)
-mimas = Moon(saturn, 'Mimas', 6, 1, False, None)
-enceladus = Moon(saturn, 'Enceladus', 6, 2, False, None)
-tethys = Moon(saturn, 'Tethys', 7, 0, False, None)
-dione = Moon(saturn, 'Dione', 7, 1, False, None)
-rhea = Moon(saturn, 'Rhea', 7, 2, False, None)
-titan = Moon(saturn, 'Titan', 8, 1, True, None)
-iapetus = Moon(saturn, 'Iapetus', 8, 2, False, None)
-uranus = Planet('Uranus', 9, 0, False, True, True, None)
+jupiter = Planet('Jupiter', 3, 0, False, True, True, None)
+io = Moon(jupiter, 'Io', 3, 1, False, None)
+europa = Moon(jupiter, 'Europa', 3, 2, False, None)
+ganymede = Moon(jupiter, 'Ganymede', 4, 0, False, None)
+callisto = Moon(jupiter, 'Callisto', 4, 1, False, None)
 # note disruption of layout order here
-miranda = Moon(uranus,'Miranda',8,0,False, None)
-ariel = Moon(uranus,'Ariel',9,1,False, None)
-umbriel = Moon(uranus,'Umbriel',9,2,False, None)
-titania = Moon(uranus,'Titania',10,1,False, None)
-oberon = Moon(uranus,'Oberon',10,2,False, None)
-neptune = Planet('Neptune', 10, 0, False, True, True, None)
+saturn = Planet('Saturn', 5, 0, False, True, True, None)
+mimas = Moon(saturn, 'Mimas', 4, 2, False, None)
+titan = Moon(saturn, 'Titan', 5, 1, True, None)
+iapetus = Moon(saturn, 'Iapetus', 5, 2, False, None)
+enceladus = Moon(saturn, 'Enceladus', 6, 0, False, None)
+tethys = Moon(saturn, 'Tethys', 6, 1, False, None)
+dione = Moon(saturn, 'Dione', 6, 2, False, None)
+rhea = Moon(saturn, 'Rhea', 7, 0, False, None)
+uranus = Planet('Uranus', 7, 1, False, True, True, None)
+neptune = Planet('Neptune', 7, 2, False, True, True, None)
 # note disruption of layout order again here
-triton = Moon(neptune, 'Triton', 11, 0, True, None)
-pluto = Planet('Pluto', 11, 1, True, True, True, None)
-charon = Moon(pluto, 'Charon', 11, 2, False, None)
+triton = Moon(neptune, 'Triton', 8, 2, False, None)
+pluto = Planet('Pluto', 8, 0, True, False, True, None)
+charon = Moon(pluto, 'Charon', 8, 1, False, None)
 
-bodies = [sun, mercury, venus, earth, luna, mars, phobos, deimos, ceres, vesta, asteroid, jupiter, io, europa, ganymede, callisto, saturn, mimas, enceladus, tethys, dione, rhea, titan, iapetus, uranus, miranda, ariel, umbriel, titania, oberon, neptune, triton, pluto, charon]
+bodies = [sun, mercury, venus, earth, luna, asteroid, mars, phobos, deimos, jupiter, io, europa, ganymede, callisto, saturn, mimas, titan, iapetus, enceladus, tethys, dione, rhea, uranus, neptune, triton, pluto, charon]
 
 def generate(l):
-    grid = [[None, None, None] for x in range(12)]
+    grid = [[None, None, None] for x in xrange(9)]
 
     for line in l:
         body, _, merits = line.strip().partition(' ')
@@ -189,7 +182,7 @@ def generate(l):
         grid[b.x][b.y] = b.generate()
 
     height = 0
-    for x in range(12):
+    for x in xrange(9):
         grid[x] = [g for g in grid[x] if g is not None]
         height = max(height, len(grid[x]))
     grid = [g for g in grid if g]

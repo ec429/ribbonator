@@ -49,8 +49,8 @@ def load_device(d):
     return Image.open(f)
 
 device_images = {k: load_device(d) for k,d in list(devices.items())}
-layout = Image.open('RSS/Layout.png')
-asteroid_layout = Image.open('RSS/Asteroids.png')
+layout = Image.open('OPM/Layout.png')
+asteroid_layout = Image.open('OPM/Asteroids.png')
 
 class CelestialBody(object):
     star = False # is the 'Escape' device valid?
@@ -111,12 +111,12 @@ class Star(CelestialBody):
     star = True
 class Planet(CelestialBody): pass
 class Moon(CelestialBody):
-    def __init__(self, parent, name, x, y, atmos, wreath):
-        # All moons have surfaces (there are no gas moons), and none support synchronous orbit
-        super(Moon, self).__init__(name, x, y, True, atmos, False, wreath)
+    def __init__(self, parent, name, x, y, atmos, synch, wreath):
+        # All moons have surfaces (there are no gas moons), but unlike RSS, some support synchronous orbits -- Gilly and Minmus.
+        super(Moon, self).__init__(name, x, y, True, atmos, synch, wreath)
         self.parent = parent # we don't actually use this anywhere
     def copy(self):
-        return self.__class__(self.parent, self.name, self.x, self.y, self.atmos, self.wreath)
+        return self.__class__(self.parent, self.name, self.x, self.y, self.atmos, self.synch, self.wreath)
 class Asteroid(CelestialBody):
     mb = None
     def set_main_body(self, x, y):
@@ -126,44 +126,41 @@ class Asteroid(CelestialBody):
         y = self.mb[1] * 32
         return asteroid_layout.crop((x, y, x+120, y+32))
 
-sun = Star('Sol', 0, 0, False, True, True, None)
-mercury = Planet('Mercury', 0, 1, True, False, False, None)
-venus = Planet('Venus', 0, 2, True, True, False, "Reach orbit from the surface")
-earth = Planet('Earth', 1, 0, True, True, True, "Single Stage to Orbit")
-luna = Moon(earth, 'Luna', 1, 1, False, None)
-mars = Planet('Mars', 2, 0, True, True, True, None)
-phobos = Moon(mars, 'Phobos', 2, 1, False, None)
-deimos = Moon(mars, 'Deimos', 2, 2,  False, None)
-ceres = Planet('Ceres', 3, 0, True, False, True, None)
-vesta = Planet('Vesta', 3, 1, True, False, True, None)
-asteroid = Asteroid('Asteroid', 3, 2, True, False, False, None)
-jupiter = Planet('Jupiter', 4, 0, False, True, True, None)
-io = Moon(jupiter, 'Io', 4, 1, False, None)
-europa = Moon(jupiter, 'Europa', 4, 2, False, None)
-ganymede = Moon(jupiter, 'Ganymede', 5, 1, False, None)
-callisto = Moon(jupiter, 'Callisto', 5, 2, False, None)
-saturn = Planet('Saturn', 6, 0, False, True, True, None)
-mimas = Moon(saturn, 'Mimas', 6, 1, False, None)
-enceladus = Moon(saturn, 'Enceladus', 6, 2, False, None)
-tethys = Moon(saturn, 'Tethys', 7, 0, False, None)
-dione = Moon(saturn, 'Dione', 7, 1, False, None)
-rhea = Moon(saturn, 'Rhea', 7, 2, False, None)
-titan = Moon(saturn, 'Titan', 8, 1, True, None)
-iapetus = Moon(saturn, 'Iapetus', 8, 2, False, None)
-uranus = Planet('Uranus', 9, 0, False, True, True, None)
-# note disruption of layout order here
-miranda = Moon(uranus,'Miranda',8,0,False, None)
-ariel = Moon(uranus,'Ariel',9,1,False, None)
-umbriel = Moon(uranus,'Umbriel',9,2,False, None)
-titania = Moon(uranus,'Titania',10,1,False, None)
-oberon = Moon(uranus,'Oberon',10,2,False, None)
-neptune = Planet('Neptune', 10, 0, False, True, True, None)
-# note disruption of layout order again here
-triton = Moon(neptune, 'Triton', 11, 0, True, None)
-pluto = Planet('Pluto', 11, 1, True, True, True, None)
-charon = Moon(pluto, 'Charon', 11, 2, False, None)
+sun = Star('Sun', 0, 0, False, True, True, None)
+moho = Planet('Moho', 0, 1, True, False, False, None)
+asteroid = Asteroid('Asteroid', 0, 2, True, False, False, None)
+eve = Planet('Eve', 1, 0, True, True, True, "Reach orbit from the surface")
+gilly = Moon(eve, 'Gilly', 1, 1, False, True, None)
+kerbin = Planet('Kerbin', 2, 0, True, True, True, "Single Stage to Orbit")
+mun = Moon(kerbin, 'Mun', 2, 1, False, False, None)
+minmus = Moon(kerbin, 'Minmus', 2, 2, False, True, None)
+duna = Planet('Duna', 3, 0, True, True, True, None)
+ike = Moon(duna, 'Ike', 3, 1, False, False, None)
+dres = Planet('Dres',3, 2, True, False, True, None)
+jool = Planet('Jool', 4, 0, False, True, True, None)
+laythe = Moon(jool, 'Laythe', 4, 1, True, False, None)
+tylo = Moon(jool, 'Tylo', 4, 2, False, False, "Land and return to orbit safely")
+vall = Moon(jool, 'Vall', 5, 0, False, False, None)
+bop = Moon(jool, 'Bop', 5, 1, False, False, None)
+pol = Moon(jool, 'Pol', 5, 2,  False, False, None)
+sarnus = Planet('Sarnus', 6, 0, False, True, True, None)
+hale = Moon(sarnus, 'Hale', 6, 1, False, False, None)
+ovok = Moon(sarnus, 'Ovok', 6, 2, False, False, None)
+eeloo = Moon(sarnus, 'Eeloo', 7, 0, False, True, None)
+slate = Moon(sarnus, 'Slate', 7, 1, False, False, None)
+tekto = Moon(sarnus, 'Tekto', 7, 2,  True, False, None)
+urlum = Planet('Urlum', 8, 0, False, True, True, None)
+polta = Moon(urlum, 'Polta', 8, 1, False, False, None)
+priax = Moon(urlum, 'Priax', 8, 2, False, False, None)
+wal = Moon(urlum, 'Wal', 9, 1, False, False, None)
+tal = Moon(wal, 'Tal', 9, 2,  False, False, None)
+neidon = Planet('Neidon', 10, 0, False, True, True, None)
+thatmo = Moon(neidon, 'Thatmo', 10, 1, True, False, None)
+nissee = Moon(neidon, 'Nissee', 10, 2, False, False, None)
+plock = Planet('Plock', 11, 0, True, False, True, None)
+karen = Moon(plock, 'Karen', 11, 1, False, False, None)
 
-bodies = [sun, mercury, venus, earth, luna, mars, phobos, deimos, ceres, vesta, asteroid, jupiter, io, europa, ganymede, callisto, saturn, mimas, enceladus, tethys, dione, rhea, titan, iapetus, uranus, miranda, ariel, umbriel, titania, oberon, neptune, triton, pluto, charon]
+bodies = [sun, moho, asteroid, eve, gilly, dres, kerbin, mun, minmus, duna, ike, vall, jool, laythe, tylo, bop, pol, sarnus, hale, ovok, eeloo, slate, tekto, urlum, polta, priax, wal, tal, neidon, thatmo, nissee, plock, karen]
 
 def generate(l):
     grid = [[None, None, None] for x in range(12)]

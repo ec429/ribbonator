@@ -5,6 +5,7 @@
 # but the colours for RSS ribbons are all my fault.
 
 import sys
+import os
 from PIL import Image
 
 devices = {'a':'Aircraft',
@@ -12,25 +13,34 @@ devices = {'a':'Aircraft',
            'b':'Base',
            'B':'Base 2',
            'c':'Capsule',
+		   'C':'Closer Solar Orbit', #new! done!
+		   'd':'Double Dots', #new! done!
+		   'D':'Double Bars', #new! done!
            'e':'Equatorial',
            'E':'Extreme EVA',
            'f':'Flag or Monument',
+		   'F':'Flag device', #new! done!
            'g':'Geosynchronous',
            'i':'Impactor',
            'l':'Probe Lander',
+		   'k':'Caps Device', #new! done!
+		   'K':'Rendezvous Device', #new! done!
            'L':'Lander',
            'm':'Meteor',
            'M':'Multi-Part Ship',
            'n':'Land Nav',
            'o':'Orbit',
+		   'O':'Orbit Device', #new! done!
            'p':'Polar',
            'P':'Probe',
            'r':'Rendezvous',
            'R':'Rover',
            's':'Station',
            'v':'Probe Rover',
+		   'V':'Bevel', #new! done!
            'W':'Challenge Wreath',
            'X':'Kerbol Escape',
+		   'x':'Deep Atmosphere', #new! done!
            '?':'Anomaly',
            '*':'Armada',
            '#':'Armada 2',
@@ -203,6 +213,21 @@ def generate(l):
     return output
 
 if __name__ == '__main__':
-    output = generate(sys.stdin.readlines())
-    if output is not None:
-        output.save('out.png')
+	devsNereid = ['mV','CkV','xV','dLV','dkV','dV','DmV','DCkV','DdLV','DdkV','DdV','DLV','DOkV','DOkKV','DdFLV','DdRV','LV','OkV','OkKV','dFLV','dRV','V']
+	devsNereidSolar = ['CkV','DCkV']
+	devsNereidSurf = ['dLV','DdLV','DLV','DdFLV','DdRV','LV','dFLV','dRV']
+	devsNereidAtmo = ['mV','xV','DmV']
+	devsNereidNames = {'mV':'Atmosphere','CkV':'CloserSolarOrbit','xV':'DeepAtmosphere','dLV':'EvaGround','dkV':'EvaOrbit','dV':'EvaSpace','DmV':'FirstAtmosphere','DCkV':'FirstCloserSolarOrbit','DdLV':'FirstEvaGround','DdkV':'FirstEvaOrbit','DdV':'FirstEvaSpace','DLV':'FirstLanding','DOkV':'FirstOrbitCapsule','DOkKV':'FirstOrbitCapsuleDocked','DdFLV':'FirstPlantFlag','DdRV':'FirstRover','LV':'Landing','OkV':'OrbitCapsule','OkKV':'OrbitCapsuleDocked','dFLV':'PlantFlag','dRV':'Rover','V':'SphereOfInfluence'}
+	for bd in bodies:
+		if bd.name != 'Asteroid':
+			for devN in devsNereid:
+				if not (devN in devsNereidSurf and not bd.surface):
+					if not (devN in devsNereidAtmo and not bd.atmos):
+						if not (devN in devsNereidSolar and not bd.star):
+							rib = '%s %s\n'%(bd.name,devN)
+							print([rib])
+							output = generate([rib])
+							if output is not None:
+								f = 'Ribbons/%s/%s.png'%(bd.name,devsNereidNames[devN])
+								os.makedirs(os.path.dirname(f), exist_ok=True)
+								output.save(f)

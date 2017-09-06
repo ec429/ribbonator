@@ -1,8 +1,8 @@
 #!/usr/bin/python -u
 
 import sys
-import cStringIO
-import urllib
+import io
+import urllib.request, urllib.parse, urllib.error
 from nevow import tags as t
 from nevow.flat import flatten
 import ribbonator
@@ -94,13 +94,13 @@ def gen_job(b, merits):
     if any(m.startswith('mb_') for m in merits):
         mb = [m for m in merits if m.startswith('mb_')][0][3:]
         b = '%s-%s'%(b, mb)
-    return (b, ''.join(urllib.quote(m) for m in merits if len(m) == 1))
+    return (b, ''.join(urllib.parse.quote(m) for m in merits if len(m) == 1))
 
 def parse_merits(kwargs):
     merits = {}
-    for k,v in kwargs.items():
-        k = urllib.unquote(k)
-        v = urllib.unquote(''.join(v))
+    for k,v in list(kwargs.items()):
+        k = urllib.parse.unquote(k)
+        v = urllib.parse.unquote(''.join(v))
         b,_,c = k.partition('_')
         b,_,mb = b.partition('-')
         merits.setdefault(b, [])
@@ -122,7 +122,7 @@ def page_body(kwargs):
     merits = parse_merits(kwargs)
     checks = [gen_checks(b, merits) for b in ribbonator.bodies]
     job = '?' + '&'.join('='.join(gen_job(b, merits[b])) for b in merits if 'soi' in merits[b])
-    print 'serving index', job
+    print('serving index', job)
     return [t.script(type='text/javascript')[PAGE_SCRIPT],
             t.h1['RSS Ribbonator - Clumsy Web Interface'],
             t.p["Generator and RSS Ribbons by Edward Cree.  Based on the KSP Ribbons by Unistrut.  'Inspired' by ", t.a(href='http://www.kerbaltek.com/ribbons')["Ezriilc's Ribbon Generator"], "."],
@@ -140,10 +140,10 @@ def page_body(kwargs):
 
 def gen_image(kwargs):
     merits = parse_merits(kwargs)
-    job = [' '.join(gen_job(k, v)) for k,v in merits.items()]
-    print 'serving gen.png', ', '.join(job)
-    image = ribbonator.generate(map(urllib.unquote, job))
-    out = cStringIO.StringIO()
+    job = [' '.join(gen_job(k, v)) for k,v in list(merits.items())]
+    print('serving gen.png', ', '.join(job))
+    image = ribbonator.generate(list(map(urllib.parse.unquote, job)))
+    out = io.StringIO()
     image.save(out, format='png')
     return out.getvalue()
 
