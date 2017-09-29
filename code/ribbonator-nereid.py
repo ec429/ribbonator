@@ -225,7 +225,7 @@ if __name__ == '__main__':
 					if not (devN in devsNereidAtmo and not bd.atmos):
 						if not (devN in devsNereidSolar and not bd.star):
 							rib = '%s %s\n'%(bd.name,devN)
-							print([rib])
+							#print([rib])
 							output = generate([rib])
 							if output is not None:
 								f = 'Ribbons/%s/%s.png'%(bd.name,devsNereidNames[devN])
