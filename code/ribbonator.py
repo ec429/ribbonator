@@ -12,34 +12,34 @@ devices = {'a':'Aircraft',
            'b':'Base',
            'B':'Base 2',
            'c':'Capsule',
-		   'C':'Closer Solar Orbit', #new! done!
-		   'd':'Double Dots', #new! done!
-		   'D':'Double Bars', #new! done!
+           'C':'Closer Solar Orbit', #new! done!
+           'd':'Double Dots', #new! done!
+           'D':'Double Bars', #new! done!
            'e':'Equatorial',
            'E':'Extreme EVA',
            'f':'Flag or Monument',
-		   'F':'Flag device', #new! done!
+           'F':'Flag device', #new! done!
            'g':'Geosynchronous',
            'i':'Impactor',
            'l':'Probe Lander',
-		   'k':'Caps Device', #new! done!
-		   'K':'Rendezvous Device', #new! done!
+           'k':'Caps Device', #new! done!
+           'K':'Rendezvous Device', #new! done!
            'L':'Lander',
            'm':'Meteor',
            'M':'Multi-Part Ship',
            'n':'Land Nav',
            'o':'Orbit',
-		   'O':'Orbit Device', #new! done!
+           'O':'Orbit Device', #new! done!
            'p':'Polar',
            'P':'Probe',
            'r':'Rendezvous',
            'R':'Rover',
            's':'Station',
            'v':'Probe Rover',
-		   'V':'Bevel', #new! done!
+           'V':'Bevel', #new! done!
            'W':'Challenge Wreath',
            'X':'Kerbol Escape',
-		   'x':'Deep Atmosphere', #new! done!
+           'x':'Deep Atmosphere', #new! done!
            '?':'Anomaly',
            '*':'Armada',
            '#':'Armada 2',
