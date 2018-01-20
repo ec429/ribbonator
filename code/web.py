@@ -6,6 +6,7 @@ import urllib
 from nevow import tags as t
 from nevow.flat import flatten
 import ribbonator
+import optparse
 
 from twisted.web import server, resource
 from twisted.internet import reactor, endpoints
@@ -170,5 +171,9 @@ root.putChild('index.htm', Index())
 root.putChild('gen.png', GenImg())
 
 if __name__ == '__main__':
-    endpoints.serverFromString(reactor, "tcp:8080").listen(server.Site(root))
+    x = optparse.OptionParser()
+    x.add_option('-p', '--port', type=int, default=8080)
+    opts, args = x.parse_args()
+    assert not args, args
+    endpoints.serverFromString(reactor, "tcp:%d"%(opts.port,)).listen(server.Site(root))
     reactor.run()
