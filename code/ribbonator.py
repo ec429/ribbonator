@@ -12,34 +12,34 @@ devices = {'a':'Aircraft',
            'b':'Base',
            'B':'Base 2',
            'c':'Capsule',
-           'C':'Closer Solar Orbit', #new! done!
-           'd':'Double Dots', #new! done!
-           'D':'Double Bars', #new! done!
+           'C':'Closer Solar Orbit',
+           'd':'Double Dots',
+           'D':'Double Bars',
            'e':'Equatorial',
            'E':'Extreme EVA',
            'f':'Flag or Monument',
-           'F':'Flag device', #new! done!
+           'F':'Flag device',
            'g':'Geosynchronous',
            'i':'Impactor',
            'l':'Probe Lander',
-           'k':'Caps Device', #new! done!
-           'K':'Rendezvous Device', #new! done!
+           'k':'Caps Device',
+           'K':'Rendezvous Device',
            'L':'Lander',
            'm':'Meteor',
            'M':'Multi-Part Ship',
            'n':'Land Nav',
            'o':'Orbit',
-           'O':'Orbit Device', #new! done!
+           'O':'Orbit Device',
            'p':'Polar',
            'P':'Probe',
            'r':'Rendezvous',
            'R':'Rover',
            's':'Station',
            'v':'Probe Rover',
-           'V':'Bevel', #new! done!
+           'V':'Bevel',
            'W':'Challenge Wreath',
            'X':'Kerbol Escape',
-           'x':'Deep Atmosphere', #new! done!
+           'x':'Deep Atmosphere',
            '?':'Anomaly',
            '*':'Armada',
            '#':'Armada 2',
@@ -57,7 +57,7 @@ def load_device(d):
     f = 'Devices/%s.png'%(d,)
     return Image.open(f)
 
-device_images = {k: load_device(d) for k,d in list(devices.items())}
+device_images = {k: load_device(d) for k,d in devices.items()}
 layout = Image.open('RSS/Layout.png')
 asteroid_layout = Image.open('RSS/Asteroids.png')
 

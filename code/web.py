@@ -1,8 +1,9 @@
 #!/usr/bin/python -u
 
+from __future__ import print_function
 import sys
-import io
-import urllib.request, urllib.parse, urllib.error
+import cStringIO
+import urllib
 from nevow import tags as t
 from nevow.flat import flatten
 import ribbonator
@@ -95,13 +96,13 @@ def gen_job(b, merits):
     if any(m.startswith('mb_') for m in merits):
         mb = [m for m in merits if m.startswith('mb_')][0][3:]
         b = '%s-%s'%(b, mb)
-    return (b, ''.join(urllib.parse.quote(m) for m in merits if len(m) == 1))
+    return (b, ''.join(urllib.quote(m) for m in merits if len(m) == 1))
 
 def parse_merits(kwargs):
     merits = {}
     for k,v in list(kwargs.items()):
-        k = urllib.parse.unquote(k)
-        v = urllib.parse.unquote(''.join(v))
+        k = urllib.unquote(k)
+        v = urllib.unquote(''.join(v))
         b,_,c = k.partition('_')
         b,_,mb = b.partition('-')
         merits.setdefault(b, [])
@@ -141,10 +142,10 @@ def page_body(kwargs):
 
 def gen_image(kwargs):
     merits = parse_merits(kwargs)
-    job = [' '.join(gen_job(k, v)) for k,v in list(merits.items())]
+    job = [' '.join(gen_job(k, v)) for k,v in merits.items()]
     print('serving gen.png', ', '.join(job))
-    image = ribbonator.generate(list(map(urllib.parse.unquote, job)))
-    out = io.StringIO()
+    image = ribbonator.generate(list(map(urllib.unquote, job)))
+    out = cStringIO.StringIO()
     image.save(out, format='png')
     return out.getvalue()
 
