@@ -51,7 +51,7 @@ devices = {'a':'Aircraft',
 craft_devices = 'abBcEfilLmMPRsv*#$' # only one of these is allowed
 surface_devices = 'bBEfilLnRv?$' # these should not be possible for a planet without a surface
 atmos_devices = 'Am' # these should not be possible for an airless body
-collation = 'eprgoX^' + craft_devices + '|+' # used to sort devices in case they overlap
+collation = 'eprgonX^' + craft_devices + '|+' # used to sort devices in case they overlap
 
 def load_device(d):
     f = 'Devices/%s.png'%(d,)
