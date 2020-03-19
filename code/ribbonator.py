@@ -113,7 +113,7 @@ class CelestialBody(object):
         base = self.base_ribbon()
         for d in self.devices:
             img = device_images[d]
-            base.paste(img, img)
+            base = Image.alpha_composite(base, img)
         return base
 
 class Star(CelestialBody):
